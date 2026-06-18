@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# RAG data (local indexes, uploads)
+chroma_storage/
+/backend/ingestion/documents/*
+!/backend/ingestion/documents/sample.txt
+
+# OS
+Thumbs.db
+.DS_Store
