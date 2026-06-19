@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from fastapi import APIRouter, Depends, HTTPException
 
-from api.schemas import AskRequest, AskResponse, SourceItem
-from api.services.llm import LLMClient, get_llm
-from api.services.rag import ask
-from retrieval.retriever import Retriever, get_retriever
+from src.api.schemas import AskRequest, AskResponse, SourceItem
+from src.api.services.rag import ask
+from src.llm import OllamaClient, OllamaError, get_llm_client
+from src.retrieval import Retriever, get_retriever
 
 router = APIRouter(tags=["ask"])
 
@@ -16,7 +14,7 @@ router = APIRouter(tags=["ask"])
 def ask_question(
     body: AskRequest,
     retriever: Retriever = Depends(get_retriever),
-    llm: LLMClient = Depends(get_llm),
+    llm: OllamaClient = Depends(get_llm_client),
 ) -> AskResponse:
     try:
         result = ask(
@@ -27,11 +25,8 @@ def ask_question(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except Exception as exc:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Ошибка генерации ответа: {exc}",
-        ) from exc
+    except OllamaError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     return AskResponse(
         answer=result["answer"],

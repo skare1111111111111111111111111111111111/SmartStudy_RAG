@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from api.schemas import StatsResponse
-from retrieval.retriever import Retriever, get_retriever
+from src.api.schemas import StatsResponse
+from src.retrieval import Retriever, get_retriever
 
 router = APIRouter(tags=["stats"])
 
