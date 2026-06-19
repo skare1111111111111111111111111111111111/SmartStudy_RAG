@@ -13,8 +13,8 @@ venv/
 
 # RAG data (local indexes, uploads)
 chroma_storage/
-/backend/ingestion/documents/*
-!/backend/ingestion/documents/sample.txt
+/backend/src/ingestion/documents/*
+!/backend/src/ingestion/documents/sample.txt
 
 # OS
 Thumbs.db

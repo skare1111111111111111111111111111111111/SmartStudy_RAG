@@ -69,7 +69,7 @@ def test_chunk_pages_integration_with_sample_txt() -> None:
     from ingestion.parser import parse_file
     from pathlib import Path
 
-    sample = Path(__file__).resolve().parents[1] / "ingestion" / "documents" / "sample.txt"
+    sample = Path(__file__).resolve().parents[1] / "src" / "ingestion" / "documents" / "sample.txt"
     pages = parse_file(sample)
     chunks = chunk_pages(pages, chunk_size=200, overlap=30)
 
