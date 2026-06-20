@@ -181,6 +181,8 @@ cd C:\SmartStudy_RAG; $env:COMPOSE_BAKE="false"; docker compose pull; docker com
 
 Образы: `ghcr.io/ffgags13/smartstudy-rag-backend` и `ghcr.io/ffgags13/smartstudy-rag-frontend`
 
+> **Первый запуск pull:** образы собираются в GitHub Actions. Если `pull` пишет *not found* — один раз добавьте workflow: скопируйте [`scripts/ghcr-docker-publish.yml`](scripts/ghcr-docker-publish.yml) в `.github/workflows/docker-publish.yml` на GitHub (или `gh auth refresh -s workflow` и push). Затем сделайте пакеты **Public** в [Packages](https://github.com/Ffgags13?tab=packages).
+
 UI: http://localhost:8501 | Логи: `docker compose logs -f backend`
 
 ### Linux / macOS
