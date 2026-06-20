@@ -157,15 +157,16 @@ Swagger UI: http://localhost:8000/docs
 
 **Вариант A — EXE установщик (release, рекомендуется):**
 
-1. Скачайте [`SmartStudy-Setup.exe`](https://github.com/Ffgags13/SmartStudy_RAG/releases/latest) из Releases
-2. Запустите двойным кликом (нужен Docker Desktop)
-
-Или из PowerShell:
+1. Скачайте из [Releases](https://github.com/Ffgags13/SmartStudy_RAG/releases/latest):
+   - **`SmartStudy-Setup-PS.exe`** — лёгкий, без PyInstaller (рекомендуется)
+   - **`SmartStudy-Setup.exe`** — Python onefile
+   - **`SmartStudy-Setup-Portable.zip`** — если onefile падает с `PYI-16524`
+2. Запустите (нужен Docker Desktop)
 
 ```powershell
-$exe="$env:TEMP\SmartStudy-Setup.exe"
-Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/releases/latest/download/SmartStudy-Setup.exe" -OutFile $exe
-& $exe
+# рекомендуемый (PowerShell exe)
+Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/releases/latest/download/SmartStudy-Setup-PS.exe" -OutFile "$env:TEMP\setup.exe"
+& "$env:TEMP\setup.exe"
 ```
 
 **Без GitHub** (локальная копия репозитория):

@@ -9,8 +9,22 @@ Windows installer: Docker pull (GHCR) → fallback ZIP build → or local repo c
 ```powershell
 cd release
 .\build.ps1
-# Output: release\dist\SmartStudy-Setup.exe
 ```
+
+Outputs in `release/dist/`:
+| File | Description |
+|------|-------------|
+| `SmartStudy-Setup-PS.exe` | **Recommended** — PowerShell, no PyInstaller |
+| `SmartStudy-Setup.exe` | Python 3.12 onefile |
+| `SmartStudy-Setup-Portable.zip` | Fallback if `PYI-16524` extraction error |
+
+### PYI-16524 fix
+
+If `SmartStudy-Setup.exe` fails with `Failed to extract unicodedata.pyd`:
+- Use **`SmartStudy-Setup-PS.exe`** instead, or
+- Extract **`SmartStudy-Setup-Portable.zip`** and run `SmartStudy-Setup-Portable.exe`
+
+Cause: PyInstaller onefile + Python 3.14 or antivirus blocking temp extraction. Rebuild uses Python **3.12** and `--noupx`.
 
 ### Usage
 

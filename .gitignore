@@ -21,5 +21,8 @@ Thumbs.db
 
 # Release build artifacts
 release/build/
+release/build-portable/
 release/dist/*.exe
+release/dist/*.zip
+release/dist/SmartStudy-Setup-Portable/
 release/dist/*.spec
