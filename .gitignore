@@ -1,20 +1,19 @@
+# Docker
+.env
+
+# Data
+/chroma_storage/
+backend/chroma_storage/
+
 # Python
 __pycache__/
 *.py[cod]
-*.egg-info/
 .venv/
 venv/
-.env
 
 # IDE
 .idea/
 .vscode/
-*.swp
-
-# RAG data (local indexes, uploads)
-chroma_storage/
-/backend/src/ingestion/documents/*
-!/backend/src/ingestion/documents/sample.txt
 
 # OS
 Thumbs.db

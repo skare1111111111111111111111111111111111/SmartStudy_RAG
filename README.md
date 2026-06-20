@@ -22,8 +22,8 @@ RAG-система для ответов на вопросы по учебным
 | RAG + LLM | ✅ Готово | Промпт → Ollama → ответ с источниками |
 | FastAPI | ✅ Готово | `/ask`, `/stats`, `/reindex`, `/health` |
 | Тесты | ✅ 27/27 | parser, chunker, indexer, api |
-| Frontend | ❌ Нет | Streamlit не реализован |
-| Docker | ❌ Нет | docker-compose не настроен |
+| Frontend | ✅ Готово | Streamlit чат-интерфейс |
+| Docker | ✅ Готово | docker-compose: ollama + backend + frontend |
 
 ### Пайплайн данных
 
@@ -50,9 +50,20 @@ HTTP JSON → клиент
 ```
 SmartStudy_RAG/
 ├── .gitignore
-├── README.md                         # этот файл
+├── .env.example
+├── docker-compose.yml
+├── run.ps1                           # запуск (Windows)
+├── run.sh                            # запуск (Linux/macOS)
+├── install.ps1                       # скачать + запустить (Windows)
+├── install.sh                        # скачать + запустить (Linux/macOS)
+├── README.md
+├── documents/                        # вшивается в Docker-образ backend
+│   └── sample.txt
 │
 ├── backend/
+│   ├── Dockerfile
+│   ├── docker-entrypoint.sh
+│   ├── requirements-prod.txt         # зависимости для Docker
 │   ├── pytest.ini                    # pythonpath = src
 │   ├── requirements.txt
 │   │
@@ -94,7 +105,12 @@ SmartStudy_RAG/
 │       └── fixtures/
 │           └── sample.pdf
 │
-└── frontend/                         # пока пусто
+└── frontend/                         # Streamlit UI
+    ├── app.py                        # главная страница
+    ├── requirements.txt
+    └── components/
+        ├── chat.py                   # чат с историей
+        └── sidebar.py                # stats, reindex, health
 ```
 
 ---
@@ -130,7 +146,77 @@ Swagger UI: http://localhost:8000/docs
 
 ---
 
-## Установка и запуск
+## Запуск одной строкой (Docker)
+
+### Требования
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/)
+
+### Скачать и запустить (1 строка)
+
+**Windows (PowerShell):**
+```powershell
+git clone --depth 1 https://github.com/Ffgags13/SmartStudy_RAG.git SmartStudy_RAG; cd SmartStudy_RAG; .\run.ps1
+```
+
+**Linux / macOS:**
+```bash
+git clone --depth 1 https://github.com/Ffgags13/SmartStudy_RAG.git SmartStudy_RAG && cd SmartStudy_RAG && sh run.sh
+```
+
+### Только запуск (если проект уже скачан)
+
+```powershell
+docker compose up --build -d
+```
+
+### Что происходит автоматически
+
+При первом запуске контейнер **backend** сам:
+1. Ждёт Ollama
+2. Скачивает модель `llama3`
+3. Скачивает модель эмбеддингов
+4. Индексирует документы из образа (`sample.txt` уже внутри)
+
+Документы, код backend и frontend **упакованы в Docker-образы** — монтировать папки не нужно.
+
+### Адреса
+
+| Сервис | URL |
+|--------|-----|
+| Streamlit UI | http://localhost:8501 |
+| API Swagger | http://localhost:8000/docs |
+
+Первый запуск занимает **5–15 минут** (скачивание моделей). Прогресс:
+
+```powershell
+docker compose logs -f backend
+```
+
+### Полезные команды
+
+```powershell
+docker compose ps
+docker compose logs -f backend
+docker compose down
+docker compose down -v    # удалить индекс и модели
+```
+
+### Свои документы (опционально)
+
+По умолчанию в образ встроен `sample.txt`. Чтобы добавить свои файлы без пересборки, можно временно смонтировать папку — добавьте в `docker-compose.yml` в сервис `backend`:
+
+```yaml
+volumes:
+  - ./my-docs:/data/documents
+```
+
+Затем: `docker compose up --build -d` и `POST /reindex`.
+
+---
+
+## Установка и запуск (локально, без Docker)
 
 ### Требования
 
@@ -166,7 +252,26 @@ $env:PYTHONPATH = "src"
 py -m uvicorn api.main:app --reload --port 8000
 ```
 
-### Пример использования
+### Запуск Frontend (Streamlit)
+
+```powershell
+# Терминал 3: Frontend (API должен быть запущен)
+cd frontend
+py -m pip install -r requirements.txt
+py -m streamlit run app.py
+```
+
+Откройте http://localhost:8501
+
+### Проверка всей системы
+
+1. Запустите Ollama: `ollama run llama3`
+2. Запустите API (терминал 2, см. выше)
+3. Запустите Streamlit (терминал 3)
+4. В боковой панели нажмите **Переиндексировать**
+5. Задайте вопрос, например: «Что такое машинное обучение?»
+6. Проверьте ответ и блок **Источники**
+
 
 ```powershell
 # Индексация документов
@@ -222,8 +327,8 @@ git push origin dev
 | 1 | Ingestion (parser, chunker, indexer) | ✅ Готово |
 | 2 | Retrieval (embedding, retriever) | ✅ Готово |
 | 3 | API (FastAPI + RAG + Ollama) | ✅ Готово |
-| 4 | Streamlit frontend | ⏳ Следующий |
-| 5 | Docker Compose | ⏳ Планируется |
+| 4 | Streamlit frontend | ✅ Готово |
+| 5 | Docker Compose | ✅ Готово |
 | 6 | Инкрементальная индексация + CLI | ⏳ Планируется |
 | 7 | README, CI, .env.example | ⏳ Частично (этот файл) |
 
