@@ -194,7 +194,30 @@ docker compose up --build -d
 docker compose logs -f backend
 ```
 
-### Полезные команды
+### Если сборка падает с `failed to execute bake`
+
+```bash
+export COMPOSE_BAKE=false
+docker compose build --no-cache
+docker compose up -d
+```
+
+Или клонируйте проект **внутри WSL**, не на `/mnt/c/`:
+
+```bash
+cd ~
+git clone --depth 1 https://github.com/Ffgags13/SmartStudy_RAG.git
+cd SmartStudy_RAG
+sh run.sh
+```
+
+### Если `docker compose` не найден в WSL
+
+1. Установите [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+2. Settings → Resources → **WSL Integration** → включите ваш дистрибутив
+3. Не ставьте `docker.io` через apt — используйте Docker Desktop
+
+---
 
 ```powershell
 docker compose ps

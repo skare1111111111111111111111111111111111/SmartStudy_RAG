@@ -18,10 +18,8 @@ fi
 
 echo "Checking document index..."
 python -c "
-import sys
-sys.path.insert(0, 'src')
-from ingestion.indexer import get_indexer
-from config import DOCUMENTS_PATH
+from src.ingestion.indexer import get_indexer
+from src.config import DOCUMENTS_PATH
 idx = get_indexer()
 if idx.count() == 0:
     n = idx.index_directory(DOCUMENTS_PATH)
