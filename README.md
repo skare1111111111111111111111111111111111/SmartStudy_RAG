@@ -155,23 +155,31 @@ Swagger UI: http://localhost:8000/docs
 
 ### Скачать и запустить — 1 строка (Windows)
 
-**PowerShell** (скачать ZIP + распаковать + запустить Docker):
+**Вариант A — только Docker-образы (рекомендуется, мало RAM, без сборки):**
+
+```powershell
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install-images.ps1 | iex
+```
+
+Inline:
+
+```powershell
+$d="C:\SmartStudy_RAG"; mkdir -Force $d | Out-Null; irm "https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/docker-compose.pull.yml" -OutFile "$d\docker-compose.yml"; cd $d; docker compose pull; docker compose up -d
+```
+
+**Вариант B — ZIP + сборка образов локально:**
 
 ```powershell
 irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
 ```
 
-Или без интернет-скрипта, всё inline:
+**Уже скачано — только запуск (pull образов):**
 
 ```powershell
-$d="C:\SmartStudy_RAG"; $z="$env:TEMP\ss.zip"; Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip" -OutFile $z -UseBasicParsing; Expand-Archive $z $d -Force; cd "$d\SmartStudy_RAG-main"; $env:COMPOSE_BAKE="false"; docker compose up --build -d
+cd C:\SmartStudy_RAG; $env:COMPOSE_BAKE="false"; docker compose pull; docker compose up -d
 ```
 
-Если проект **уже скачан** — только запуск:
-
-```powershell
-cd C:\SmartStudy_RAG\SmartStudy_RAG-main; $env:COMPOSE_BAKE="false"; docker compose up --build -d
-```
+Образы: `ghcr.io/ffgags13/smartstudy-rag-backend` и `ghcr.io/ffgags13/smartstudy-rag-frontend`
 
 UI: http://localhost:8501 | Логи: `docker compose logs -f backend`
 
