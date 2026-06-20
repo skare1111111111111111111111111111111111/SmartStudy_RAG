@@ -194,6 +194,23 @@ docker compose up --build -d
 docker compose logs -f backend
 ```
 
+### Если Docker не запускается после нехватки памяти
+
+Проблема **не в проекте** — нужно сбросить Docker Desktop.  
+Полная инструкция: [docs/DOCKER_RECOVERY.md](docs/DOCKER_RECOVERY.md)
+
+Кратко (PowerShell от администратора):
+
+```powershell
+wsl --shutdown
+wsl --unregister docker-desktop
+wsl --unregister docker-desktop-data
+```
+
+Переустановите Docker Desktop, затем скачайте проект **ZIP-архивом** (не git clone):
+
+https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip
+
 ### Если сборка падает с `failed to execute bake`
 
 ```bash

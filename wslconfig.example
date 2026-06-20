@@ -1,0 +1,5 @@
+# Скопируйте в C:\Users\<USER>\.wslconfig и выполните: wsl --shutdown
+[wsl2]
+memory=4GB
+swap=2GB
+processors=2
