@@ -30,18 +30,25 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Build SmartStudy-Setup.exe
+      - name: Build installers
         shell: pwsh
         run: |
           cd release
           pip install -r requirements-build.txt
-          pyinstaller --onefile --console --name SmartStudy-Setup --distpath dist --workpath build --specpath build --clean installer.py
-          Get-FileHash dist/SmartStudy-Setup.exe -Algorithm SHA256 | Format-List
+          pyinstaller --onefile --console --noupx --name SmartStudy-Setup --distpath dist --workpath build --specpath build --clean installer.py
+          pyinstaller --onedir --console --noupx --name SmartStudy-Setup-Portable --distpath dist --workpath build-portable --specpath build-portable --clean installer.py
+          Compress-Archive -Path dist/SmartStudy-Setup-Portable -DestinationPath dist/SmartStudy-Setup-Portable.zip -Force
+          Install-Module ps2exe -Force -Scope CurrentUser
+          Import-Module ps2exe
+          Invoke-ps2exe -inputFile ../scripts/SmartStudy-Setup.ps1 -outputFile dist/SmartStudy-Setup-PS.exe -noConsole:$false
 
       - uses: actions/upload-artifact@v4
         with:
           name: SmartStudy-Setup-exe
-          path: release/dist/SmartStudy-Setup.exe
+          path: |
+            release/dist/SmartStudy-Setup.exe
+            release/dist/SmartStudy-Setup-PS.exe
+            release/dist/SmartStudy-Setup-Portable.zip
 
   build-docker:
     runs-on: ubuntu-latest
@@ -92,7 +99,9 @@ jobs:
           name: SmartStudy RAG ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           generate_release_notes: true
           files: |
+            release/dist/SmartStudy-Setup-PS.exe
             release/dist/SmartStudy-Setup.exe
+            release/dist/SmartStudy-Setup-Portable.zip
             docker-compose.pull.yml
             install-images.ps1
             scripts/SmartStudy-Setup.ps1
