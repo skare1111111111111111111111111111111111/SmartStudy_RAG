@@ -1,4 +1,6 @@
-from .llm import LLMClient, get_llm
-from .rag import ask
+"""Сервисный слой API: обёртки над src-модулями."""
 
-__all__ = ["LLMClient", "ask", "get_llm"]
+from src.llm import OllamaClient as LLMClient, OllamaError, get_llm_client as get_llm
+from src.api.services.rag import ask
+
+__all__ = ["LLMClient", "OllamaError", "ask", "get_llm"]

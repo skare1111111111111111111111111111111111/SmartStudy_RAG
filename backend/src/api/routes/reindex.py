@@ -4,10 +4,9 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from api.schemas import ReindexRequest, ReindexResponse
-from config import DOCUMENTS_PATH
-from ingestion.indexer import Indexer, get_indexer
-from ingestion.parser import SUPPORTED_EXTENSIONS
+from src.api.schemas import ReindexRequest, ReindexResponse
+from src.config import DOCUMENTS_PATH
+from src.ingestion import SUPPORTED_EXTENSIONS, Indexer, get_indexer
 
 router = APIRouter(tags=["reindex"])
 
