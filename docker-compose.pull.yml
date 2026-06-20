@@ -1,3 +1,6 @@
+# Только готовые образы — без сборки и без исходников.
+# Скачать: irm .../docker-compose.pull.yml → docker compose pull → up
+
 services:
   ollama:
     image: ollama/ollama:latest
@@ -16,9 +19,6 @@ services:
 
   backend:
     image: ghcr.io/ffgags13/smartstudy-rag-backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     container_name: smartstudy-backend
     environment:
       OLLAMA_URL: http://ollama:11434
@@ -42,9 +42,6 @@ services:
 
   frontend:
     image: ghcr.io/ffgags13/smartstudy-rag-frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
     container_name: smartstudy-frontend
     environment:
       API_URL: http://backend:8000

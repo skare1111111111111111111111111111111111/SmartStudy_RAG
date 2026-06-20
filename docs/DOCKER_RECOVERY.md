@@ -89,23 +89,36 @@ docker run --rm hello-world
 
 ## Часть 2. Одна строка — скачать и запустить
 
-**PowerShell** (рекомендуется):
+### A) Только Docker-образы (без git, без ZIP, без сборки)
+
+**PowerShell:**
+
+```powershell
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install-images.ps1 | iex
+```
+
+Inline:
+
+```powershell
+$d="C:\SmartStudy_RAG"; mkdir -Force $d | Out-Null; irm "https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/docker-compose.pull.yml" -OutFile "$d\docker-compose.yml"; cd $d; docker compose pull; docker compose up -d
+```
+
+Скачиваются готовые образы:
+- `ghcr.io/ffgags13/smartstudy-rag-backend:latest`
+- `ghcr.io/ffgags13/smartstudy-rag-frontend:latest`
+- `ollama/ollama:latest`
+
+### B) ZIP + локальная сборка
 
 ```powershell
 irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
 ```
 
-Всё inline (без git):
+### Если `pull` пишет "denied" или "not found"
 
-```powershell
-$d="C:\SmartStudy_RAG"; $z="$env:TEMP\ss.zip"; Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip" -OutFile $z -UseBasicParsing; Expand-Archive $z $d -Force; cd "$d\SmartStudy_RAG-main"; $env:COMPOSE_BAKE="false"; docker compose up --build -d
-```
-
-Уже скачали — только запуск:
-
-```powershell
-cd C:\SmartStudy_RAG\SmartStudy_RAG-main; $env:COMPOSE_BAKE="false"; docker compose up --build -d
-```
+1. Подождите 5–10 мин после push в GitHub (сборка образов в Actions)
+2. Проверьте: https://github.com/Ffgags13/SmartStudy_RAG/actions
+3. Сделайте пакеты **Public**: https://github.com/Ffgags13?tab=packages
 
 ---
 
