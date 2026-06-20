@@ -3,3 +3,8 @@
 memory=4GB
 swap=2GB
 processors=2
+localhostForwarding=true
+
+# Если интернет в WSL не работает при AmneziaVPN / WireGuard:
+#   powershell -ExecutionPolicy Bypass -File C:\WSL\fix-wsl-network.ps1
+# Или отключите VPN на время работы с WSL.
