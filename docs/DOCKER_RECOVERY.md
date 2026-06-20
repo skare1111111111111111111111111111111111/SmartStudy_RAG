@@ -87,17 +87,33 @@ docker run --rm hello-world
 
 ---
 
-## Часть 2. Скачать проект (Windows, без git)
+## Часть 2. Одна строка — скачать и запустить
 
-Если при `git clone` не хватило памяти — используйте ZIP:
+**PowerShell** (рекомендуется):
 
-1. Скачайте: https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip  
-2. Правый клик → **Извлечь всё** → `C:\SmartStudy_RAG`
-3. Папка проекта: `C:\SmartStudy_RAG\SmartStudy_RAG-main`
+```powershell
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
+```
+
+Всё inline (без git):
+
+```powershell
+$d="C:\SmartStudy_RAG"; $z="$env:TEMP\ss.zip"; Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip" -OutFile $z -UseBasicParsing; Expand-Archive $z $d -Force; cd "$d\SmartStudy_RAG-main"; $env:COMPOSE_BAKE="false"; docker compose up --build -d
+```
+
+Уже скачали — только запуск:
+
+```powershell
+cd C:\SmartStudy_RAG\SmartStudy_RAG-main; $env:COMPOSE_BAKE="false"; docker compose up --build -d
+```
 
 ---
 
-## Часть 3. Запуск SmartStudy RAG (PowerShell)
+## Часть 3. Скачать вручную (если одна строка не сработала)
+
+1. https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip  
+2. Распаковать в `C:\SmartStudy_RAG`  
+3. Запуск — см. Часть 3 ниже (поэтапная сборка)
 
 Откройте **PowerShell**, не WSL:
 

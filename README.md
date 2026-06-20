@@ -153,22 +153,27 @@ Swagger UI: http://localhost:8000/docs
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Git](https://git-scm.com/)
 
-### Скачать и запустить (Windows, PowerShell)
+### Скачать и запустить — 1 строка (Windows)
 
-**Скачать (1 строка — ZIP, без git):**
-
-Откройте в браузере и распакуйте в `C:\SmartStudy_RAG`:  
-https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip
-
-**Запустить (PowerShell):**
+**PowerShell** (скачать ZIP + распаковать + запустить Docker):
 
 ```powershell
-cd C:\SmartStudy_RAG\SmartStudy_RAG-main
-$env:COMPOSE_BAKE = "false"
-.\run.ps1
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
 ```
 
-Подробнее при сбоях Docker: [docs/DOCKER_RECOVERY.md](docs/DOCKER_RECOVERY.md)
+Или без интернет-скрипта, всё inline:
+
+```powershell
+$d="C:\SmartStudy_RAG"; $z="$env:TEMP\ss.zip"; Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip" -OutFile $z -UseBasicParsing; Expand-Archive $z $d -Force; cd "$d\SmartStudy_RAG-main"; $env:COMPOSE_BAKE="false"; docker compose up --build -d
+```
+
+Если проект **уже скачан** — только запуск:
+
+```powershell
+cd C:\SmartStudy_RAG\SmartStudy_RAG-main; $env:COMPOSE_BAKE="false"; docker compose up --build -d
+```
+
+UI: http://localhost:8501 | Логи: `docker compose logs -f backend`
 
 ### Linux / macOS
 ```bash
