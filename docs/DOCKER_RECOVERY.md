@@ -114,11 +114,36 @@ $d="C:\SmartStudy_RAG"; mkdir -Force $d | Out-Null; irm "https://raw.githubuserc
 irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
 ```
 
-### Если `pull` пишет "denied" или "not found"
+### Если `pull` пишет "denied", "not found" или **500 Internal Server Error**
 
-1. Подождите 5–10 мин после push в GitHub (сборка образов в Actions)
-2. Проверьте: https://github.com/Ffgags13/SmartStudy_RAG/actions
-3. Сделайте пакеты **Public**: https://github.com/Ffgags13?tab=packages
+**500 на Windows** часто означает одно из двух:
+1. **Образа ещё нет в GHCR** (GitHub Actions не собирал его) — Docker Desktop иногда отвечает 500 вместо понятной ошибки
+2. **Docker Engine сломан** — см. Часть 1 (перезапуск / reset)
+
+**Быстрое решение — ZIP + сборка (работает всегда):**
+
+```powershell
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
+```
+
+Или обновлённый `install-images.ps1` — он сам переключится на ZIP, если pull не удался:
+
+```powershell
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install-images.ps1 | iex
+```
+
+**Чтобы pull заработал для всех**, один раз опубликуйте образы:
+1. На GitHub: **Add file** → `.github/workflows/docker-publish.yml` → содержимое из [`scripts/ghcr-docker-publish.yml`](https://github.com/Ffgags13/SmartStudy_RAG/blob/main/scripts/ghcr-docker-publish.yml)
+2. Commit в `main` → дождитесь Actions (~10 мин)
+3. Пакеты **Public**: https://github.com/Ffgags13?tab=packages
+
+Проверка Docker:
+
+```powershell
+docker info
+docker pull hello-world
+docker pull ghcr.io/ffgags13/smartstudy-rag-backend:latest
+```
 
 ---
 
