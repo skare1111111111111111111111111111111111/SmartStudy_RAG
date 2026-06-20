@@ -18,3 +18,8 @@ venv/
 # OS
 Thumbs.db
 .DS_Store
+
+# Release build artifacts
+release/build/
+release/dist/*.exe
+release/dist/*.spec

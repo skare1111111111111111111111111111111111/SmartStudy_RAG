@@ -155,19 +155,32 @@ Swagger UI: http://localhost:8000/docs
 
 ### Скачать и запустить — 1 строка (Windows)
 
-**Вариант A — только Docker-образы (рекомендуется, мало RAM, без сборки):**
+**Вариант A — EXE установщик (release, рекомендуется):**
+
+1. Скачайте [`SmartStudy-Setup.exe`](https://github.com/Ffgags13/SmartStudy_RAG/releases/latest) из Releases
+2. Запустите двойным кликом (нужен Docker Desktop)
+
+Или из PowerShell:
+
+```powershell
+$exe="$env:TEMP\SmartStudy-Setup.exe"
+Invoke-WebRequest "https://github.com/Ffgags13/SmartStudy_RAG/releases/latest/download/SmartStudy-Setup.exe" -OutFile $exe
+& $exe
+```
+
+**Без GitHub** (локальная копия репозитория):
+
+```powershell
+SmartStudy-Setup.exe --local "C:\programming\Dev\projects\Smart_Study\smartstudy-rag"
+```
+
+**Вариант B — только Docker-образы (скрипт, мало RAM):**
 
 ```powershell
 irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install-images.ps1 | iex
 ```
 
-Inline:
-
-```powershell
-$d="C:\SmartStudy_RAG"; mkdir -Force $d | Out-Null; irm "https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/docker-compose.pull.yml" -OutFile "$d\docker-compose.yml"; cd $d; docker compose pull; docker compose up -d
-```
-
-**Вариант B — ZIP + сборка образов локально:**
+**Вариант C — ZIP + сборка образов локально:**
 
 ```powershell
 irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install.ps1 | iex
