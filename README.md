@@ -153,14 +153,24 @@ Swagger UI: http://localhost:8000/docs
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Git](https://git-scm.com/)
 
-### Скачать и запустить (1 строка)
+### Скачать и запустить (Windows, PowerShell)
 
-**Windows (PowerShell):**
+**Скачать (1 строка — ZIP, без git):**
+
+Откройте в браузере и распакуйте в `C:\SmartStudy_RAG`:  
+https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip
+
+**Запустить (PowerShell):**
+
 ```powershell
-git clone --depth 1 https://github.com/Ffgags13/SmartStudy_RAG.git SmartStudy_RAG; cd SmartStudy_RAG; .\run.ps1
+cd C:\SmartStudy_RAG\SmartStudy_RAG-main
+$env:COMPOSE_BAKE = "false"
+.\run.ps1
 ```
 
-**Linux / macOS:**
+Подробнее при сбоях Docker: [docs/DOCKER_RECOVERY.md](docs/DOCKER_RECOVERY.md)
+
+### Linux / macOS
 ```bash
 git clone --depth 1 https://github.com/Ffgags13/SmartStudy_RAG.git SmartStudy_RAG && cd SmartStudy_RAG && sh run.sh
 ```
@@ -194,21 +204,21 @@ docker compose up --build -d
 docker compose logs -f backend
 ```
 
-### Если Docker не запускается после нехватки памяти
+### Если Docker не запускается (Windows)
 
-Проблема **не в проекте** — нужно сбросить Docker Desktop.  
-Полная инструкция: [docs/DOCKER_RECOVERY.md](docs/DOCKER_RECOVERY.md)
+Инструкция для **Windows / PowerShell** (без WSL):  
+[docs/DOCKER_RECOVERY.md](docs/DOCKER_RECOVERY.md)
 
-Кратко (PowerShell от администратора):
+Кратко:
 
 ```powershell
-wsl --shutdown
-wsl --unregister docker-desktop
-wsl --unregister docker-desktop-data
+# PowerShell от администратора — сброс данных Docker
+taskkill /F /IM "Docker Desktop.exe" 2>$null
+Remove-Item -Recurse -Force "$env:LOCALAPPDATA\Docker" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force "$env:APPDATA\Docker Desktop" -ErrorAction SilentlyContinue
 ```
 
-Переустановите Docker Desktop, затем скачайте проект **ZIP-архивом** (не git clone):
-
+Переустановите Docker Desktop, скачайте проект ZIP-архивом:  
 https://github.com/Ffgags13/SmartStudy_RAG/archive/refs/heads/main.zip
 
 ### Если сборка падает с `failed to execute bake`
