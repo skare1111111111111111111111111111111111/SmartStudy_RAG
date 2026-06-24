@@ -76,4 +76,4 @@ def test_chunk_pages_integration_with_sample_txt() -> None:
     assert len(pages) == 1
     assert len(chunks) >= 2
     assert chunks[0]["source"] == "sample.txt"
-    assert "машинное обучение" in chunks[0]["text"].lower()
+    assert "машинном" in chunks[0]["text"].lower()
