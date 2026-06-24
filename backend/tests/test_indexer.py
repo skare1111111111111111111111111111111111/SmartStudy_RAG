@@ -98,6 +98,23 @@ def test_index_directory_indexes_supported_files(indexer: Indexer, tmp_path: Pat
     assert indexer.count() == total
 
 
+def test_force_reindex_removes_deleted_sources(indexer: Indexer, tmp_path: Path) -> None:
+    docs_dir = tmp_path / "documents"
+    docs_dir.mkdir()
+    first = docs_dir / "first.txt"
+    second = docs_dir / "second.txt"
+    first.write_text("Данные по теме A.", encoding="utf-8")
+    second.write_text("Данные по теме B.", encoding="utf-8")
+
+    indexer.index_directory(docs_dir, chunk_size=200, overlap=20, force=True)
+    assert set(indexer.list_sources()) == {"first.txt", "second.txt"}
+
+    second.unlink()
+    indexer.index_directory(docs_dir, chunk_size=200, overlap=20, force=True)
+
+    assert set(indexer.list_sources()) == {"first.txt"}
+
+
 def test_ingestion_to_retrieval_pipeline(
     indexer: Indexer,
     retriever: Retriever,

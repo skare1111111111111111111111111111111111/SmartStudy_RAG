@@ -29,7 +29,12 @@ class MockEmbedder:
 
 
 class MockLLM:
-    def answer(self, question: str, chunks: list) -> str:
+    def answer(
+        self,
+        question: str,
+        chunks: list,
+        answer_language: str | None = None,
+    ) -> str:
         return "Машинное обучение — подмножество искусственного интеллекта."
 
     def is_available(self) -> bool:
@@ -126,6 +131,27 @@ def test_ask_with_indexed_document(api_client: TestClient, tmp_path: Path) -> No
     assert data["sources"][0]["source"] == "notes.txt"
 
 
+def test_ask_accepts_answer_language(api_client: TestClient, tmp_path: Path) -> None:
+    doc = tmp_path / "notes_lang.txt"
+    doc.write_text(
+        "Machine learning is a subset of artificial intelligence.",
+        encoding="utf-8",
+    )
+    api_client.post("/reindex", json={"path": str(doc)})
+
+    response = api_client.post(
+        "/ask",
+        json={
+            "question": "What is machine learning?",
+            "top_k": 3,
+            "answer_language": "en",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"]
+
+
 def test_ask_validation_error(api_client: TestClient) -> None:
     response = api_client.post("/ask", json={"question": ""})
 
@@ -136,3 +162,43 @@ def test_reindex_missing_path(api_client: TestClient) -> None:
     response = api_client.post("/reindex", json={"path": "/no/such/path"})
 
     assert response.status_code == 404
+
+
+def test_upload_document(api_client: TestClient, tmp_path: Path, monkeypatch) -> None:
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    monkeypatch.setattr("src.api.routes.documents.DOCUMENTS_PATH", str(docs_dir))
+
+    response = api_client.post(
+        "/documents/upload",
+        files={
+            "file": (
+                "lecture.txt",
+                "Машинное обучение позволяет учиться на данных.\n\n"
+                "Нейронные сети — основа deep learning.",
+                "text/plain",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["filename"] == "lecture.txt"
+    assert data["chunks_added"] >= 1
+    assert (docs_dir / "lecture.txt").exists()
+
+    stats = api_client.get("/stats")
+    assert "lecture.txt" in stats.json()["documents"]
+
+
+def test_upload_unsupported_format(api_client: TestClient, tmp_path: Path, monkeypatch) -> None:
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    monkeypatch.setattr("src.api.routes.documents.DOCUMENTS_PATH", str(docs_dir))
+
+    response = api_client.post(
+        "/documents/upload",
+        files={"file": ("bad.exe", b"data", "application/octet-stream")},
+    )
+
+    assert response.status_code == 400

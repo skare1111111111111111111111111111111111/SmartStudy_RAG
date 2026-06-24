@@ -22,21 +22,25 @@ services:
     container_name: smartstudy-backend
     environment:
       OLLAMA_URL: http://ollama:11434
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:1b}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3}
       CHROMA_PATH: /data/chroma_storage
       DOCUMENTS_PATH: /data/documents
       CHUNK_SIZE: ${CHUNK_SIZE:-400}
       CHUNK_OVERLAP: ${CHUNK_OVERLAP:-30}
-      TOP_K: ${TOP_K:-3}
+      TOP_K: ${TOP_K:-15}
       MAX_TOP_K: ${MAX_TOP_K:-100}
+      LLM_TOP_K: ${LLM_TOP_K:-10}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
       EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-8}
       TORCH_NUM_THREADS: ${TORCH_NUM_THREADS:-2}
       INDEX_ON_STARTUP: ${INDEX_ON_STARTUP:-false}
-      LLM_NUM_PREDICT: ${LLM_NUM_PREDICT:-256}
-      LLM_MAX_CONTEXT_CHARS: ${LLM_MAX_CONTEXT_CHARS:-6000}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-3072}
+      LLM_TEMPERATURE: ${LLM_TEMPERATURE:-0.1}
+      LLM_NUM_PREDICT: ${LLM_NUM_PREDICT:-320}
+      LLM_MAX_CONTEXT_CHARS: ${LLM_MAX_CONTEXT_CHARS:-4500}
       CORS_ORIGINS: http://localhost:8501,http://127.0.0.1:8501
     volumes:
+      - ./documents:/data/documents
       - chroma_data:/data/chroma_storage
       - huggingface_cache:/root/.cache/huggingface
     ports:

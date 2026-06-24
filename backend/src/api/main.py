@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes.ask import router as ask_router
+from src.api.routes.documents import router as documents_router
 from src.api.routes.health import router as health_router
 from src.api.routes.reindex import router as reindex_router
 from src.api.routes.stats import router as stats_router
@@ -83,3 +84,4 @@ app.include_router(health_router)
 app.include_router(ask_router)
 app.include_router(stats_router)
 app.include_router(reindex_router)
+app.include_router(documents_router)

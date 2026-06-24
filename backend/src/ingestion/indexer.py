@@ -188,10 +188,19 @@ class Indexer:
         if not dir_path.exists():
             raise FileNotFoundError(f"Папка не найдена: {dir_path}")
 
-        total = 0
+        files: list[Path] = []
         for ext in sorted(SUPPORTED_EXTENSIONS):
-            for file_path in sorted(dir_path.glob(f"*{ext}")):
-                total += self.index_file(file_path, chunk_size, overlap, force=force)
+            files.extend(sorted(dir_path.glob(f"*{ext}")))
+
+        if force:
+            actual_sources = {file_path.name for file_path in files}
+            for source in self.list_sources():
+                if source not in actual_sources:
+                    self.delete_by_source(source)
+
+        total = 0
+        for file_path in files:
+            total += self.index_file(file_path, chunk_size, overlap, force=force)
         return total
 
     def count(self) -> int:
