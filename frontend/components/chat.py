@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import os
+
 import requests
 import streamlit as st
 
+ASK_TIMEOUT = int(os.getenv("ASK_TIMEOUT", "180"))
 
 def init_chat_state() -> None:
     if "messages" not in st.session_state:
@@ -31,12 +34,19 @@ def render_chat(api_url: str, top_k: int) -> None:
                     response = requests.post(
                         f"{api_url}/ask",
                         json={"question": question, "top_k": top_k},
-                        timeout=120,
+                        timeout=ASK_TIMEOUT,
                     )
                     response.raise_for_status()
                     data = response.json()
                     answer = data.get("answer", "Ответ не получен")
                     sources = data.get("sources", [])
+                except requests.Timeout:
+                    answer = (
+                        "Запрос занял слишком много времени. "
+                        "Уменьшите «Чанков для поиска» до 5–10 или подождите — "
+                        "первый ответ после запуска может быть медленным."
+                    )
+                    sources = []
                 except requests.RequestException as exc:
                     answer = f"Не удалось получить ответ от API: {exc}"
                     sources = []

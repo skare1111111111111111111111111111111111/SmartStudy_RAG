@@ -22,13 +22,19 @@ services:
     container_name: smartstudy-backend
     environment:
       OLLAMA_URL: http://ollama:11434
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:1b}
       CHROMA_PATH: /data/chroma_storage
       DOCUMENTS_PATH: /data/documents
-      CHUNK_SIZE: ${CHUNK_SIZE:-500}
-      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-50}
-      TOP_K: ${TOP_K:-5}
+      CHUNK_SIZE: ${CHUNK_SIZE:-400}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-30}
+      TOP_K: ${TOP_K:-3}
+      MAX_TOP_K: ${MAX_TOP_K:-100}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-8}
+      TORCH_NUM_THREADS: ${TORCH_NUM_THREADS:-2}
+      INDEX_ON_STARTUP: ${INDEX_ON_STARTUP:-false}
+      LLM_NUM_PREDICT: ${LLM_NUM_PREDICT:-256}
+      LLM_MAX_CONTEXT_CHARS: ${LLM_MAX_CONTEXT_CHARS:-6000}
       CORS_ORIGINS: http://localhost:8501,http://127.0.0.1:8501
     volumes:
       - chroma_data:/data/chroma_storage

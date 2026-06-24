@@ -1,7 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
+import os
 
+# Быстрые тесты: без file watcher и фоновой индексации при старте API.
+os.environ.setdefault("WATCH_DOCUMENTS", "false")
+os.environ.setdefault("INDEX_ON_STARTUP", "false")
+
+from pathlib import Path
 import pytest
 from docx import Document
 

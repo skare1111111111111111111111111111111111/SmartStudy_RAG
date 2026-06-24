@@ -2,13 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-import chromadb
 from chromadb.api.models.Collection import Collection
 
 from src.config import CHROMA_PATH, TOP_K
+from src.retrieval.chroma_store import COLLECTION_NAME, get_collection
 from src.retrieval.embedding import Embedder, get_embedder
-
-COLLECTION_NAME = "lectures"
 
 
 class Retriever:
@@ -23,7 +21,6 @@ class Retriever:
         self.chroma_path = chroma_path
         self.collection_name = collection_name
         self._embedder = embedder
-        self._client: chromadb.ClientAPI | None = None
         self._collection: Collection | None = None
 
     @property
@@ -33,17 +30,9 @@ class Retriever:
         return self._embedder
 
     @property
-    def client(self) -> chromadb.ClientAPI:
-        if self._client is None:
-            self._client = chromadb.PersistentClient(path=self.chroma_path)
-        return self._client
-
-    @property
     def collection(self) -> Collection:
         if self._collection is None:
-            self._collection = self.client.get_or_create_collection(
-                name=self.collection_name,
-            )
+            self._collection = get_collection(self.chroma_path, self.collection_name)
         return self._collection
 
     def search(
@@ -56,13 +45,9 @@ class Retriever:
         if not question or not question.strip():
             raise ValueError("Вопрос не может быть пустым")
 
-        if self.collection.count() == 0:
-            return []
-
-        n_results = min(top_k, self.collection.count())
         query_kwargs: dict[str, Any] = {
             "query_embeddings": [self.embedder.encode(question)],
-            "n_results": n_results,
+            "n_results": top_k,
             "include": ["documents", "metadatas", "distances"],
         }
         if where:
@@ -80,6 +65,9 @@ class Retriever:
         documents = raw.get("documents") or [[]]
         metadatas = raw.get("metadatas") or [[]]
         distances = raw.get("distances") or [[]]
+
+        if not documents or not documents[0]:
+            return []
 
         formatted: list[dict[str, Any]] = []
         for text, metadata, distance in zip(
