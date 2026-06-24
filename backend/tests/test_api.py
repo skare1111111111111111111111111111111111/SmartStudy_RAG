@@ -6,10 +6,11 @@ from typing import Sequence
 import pytest
 from fastapi.testclient import TestClient
 
-from api.main import app
-from api.services.llm import get_llm
-from ingestion.indexer import Indexer, get_indexer
-from retrieval.retriever import Retriever, get_retriever
+from src.api.main import app
+from src.ingestion.indexer import Indexer, get_indexer
+from src.llm.client import get_llm_client
+from src.retrieval.retriever import Retriever, get_retriever
+from src.api.routes.stats import invalidate_stats_cache
 
 
 class MockEmbedder:
@@ -28,7 +29,7 @@ class MockEmbedder:
 
 
 class MockLLM:
-    def generate(self, prompt: str) -> str:
+    def answer(self, question: str, chunks: list) -> str:
         return "Машинное обучение — подмножество искусственного интеллекта."
 
     def is_available(self) -> bool:
@@ -44,12 +45,15 @@ def api_client(chroma_dir: str) -> TestClient:
 
     app.dependency_overrides[get_indexer] = lambda: indexer
     app.dependency_overrides[get_retriever] = lambda: retriever
-    app.dependency_overrides[get_llm] = lambda: llm
+    app.dependency_overrides[get_llm_client] = lambda: llm
+
+    invalidate_stats_cache()
 
     with TestClient(app) as client:
         yield client
 
     app.dependency_overrides.clear()
+    invalidate_stats_cache()
 
 
 @pytest.fixture

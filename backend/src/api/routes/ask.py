@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import asyncio
+from functools import partial
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.schemas import AskRequest, AskResponse, SourceItem
@@ -11,17 +14,22 @@ router = APIRouter(tags=["ask"])
 
 
 @router.post("/ask", response_model=AskResponse)
-def ask_question(
+async def ask_question(
     body: AskRequest,
     retriever: Retriever = Depends(get_retriever),
     llm: OllamaClient = Depends(get_llm_client),
 ) -> AskResponse:
+    loop = asyncio.get_running_loop()
     try:
-        result = ask(
-            question=body.question,
-            retriever=retriever,
-            llm=llm,
-            top_k=body.top_k,
+        result = await loop.run_in_executor(
+            None,
+            partial(
+                ask,
+                question=body.question,
+                retriever=retriever,
+                llm=llm,
+                top_k=body.top_k,
+            ),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

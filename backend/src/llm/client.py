@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 
 import requests
 
 from src.config import (
+    HEALTH_CACHE_SECONDS,
+    LLM_MAX_CONTEXT_CHARS,
     LLM_NUM_PREDICT,
     LLM_TEMPERATURE,
     OLLAMA_MODEL,
+    OLLAMA_NUM_CTX,
+    OLLAMA_NUM_THREAD,
+    OLLAMA_TIMEOUT,
     OLLAMA_URL,
 )
 
@@ -31,17 +37,24 @@ class OllamaClient:
         model: str = OLLAMA_MODEL,
         temperature: float = LLM_TEMPERATURE,
         num_predict: int = LLM_NUM_PREDICT,
-        timeout: float = 120.0,
+        timeout: float = OLLAMA_TIMEOUT,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.temperature = temperature
         self.num_predict = num_predict
         self.timeout = timeout
+        self._availability_cache: tuple[bool, float] | None = None
 
-    def build_context(self, chunks: list[dict[str, Any]]) -> str:
-        """Склеивает найденные чанки в текст для промпта."""
+    def build_context(
+        self,
+        chunks: list[dict[str, Any]],
+        max_chars: int = LLM_MAX_CONTEXT_CHARS,
+    ) -> str:
+        """Склеивает найденные чанки в текст для промпта (с лимитом длины)."""
         parts: list[str] = []
+        total = 0
+
         for chunk in chunks:
             text = chunk.get("text", "").strip()
             if not text:
@@ -53,7 +66,16 @@ class OllamaClient:
                 header = f"[{source}, стр. {page}]"
             else:
                 header = f"[{source}]"
-            parts.append(f"{header}\n{text}")
+
+            block = f"{header}\n{text}"
+            if total + len(block) > max_chars:
+                remaining = max_chars - total
+                if remaining > 120:
+                    parts.append(f"{header}\n{text[: remaining - len(header) - 4]}...")
+                break
+
+            parts.append(block)
+            total += len(block) + 2
 
         return "\n\n".join(parts)
 
@@ -75,6 +97,8 @@ class OllamaClient:
             "options": {
                 "temperature": self.temperature,
                 "num_predict": self.num_predict,
+                "num_ctx": OLLAMA_NUM_CTX,
+                "num_thread": OLLAMA_NUM_THREAD,
             },
         }
 
@@ -112,15 +136,24 @@ class OllamaClient:
         return self.generate(prompt)
 
     def is_available(self) -> bool:
-        """Проверяет, доступна ли Ollama."""
+        """Проверяет, доступна ли Ollama (с кэшем)."""
+        now = time.monotonic()
+        if self._availability_cache is not None:
+            cached, ts = self._availability_cache
+            if now - ts < HEALTH_CACHE_SECONDS:
+                return cached
+
         try:
             response = requests.get(
                 f"{self.base_url}/api/tags",
                 timeout=5.0,
             )
-            return response.status_code == 200
+            available = response.status_code == 200
         except requests.RequestException:
-            return False
+            available = False
+
+        self._availability_cache = (available, now)
+        return available
 
 
 _client: OllamaClient | None = None

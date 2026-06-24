@@ -8,6 +8,17 @@ import requests
 import streamlit as st
 
 DEFAULT_API_URL = os.getenv("API_URL", "http://localhost:8000")
+STATS_CACHE_TTL = int(os.getenv("STATS_CACHE_TTL", "60"))
+
+
+@st.cache_data(ttl=STATS_CACHE_TTL, show_spinner=False)
+def _fetch_stats(api_url: str) -> dict | None:
+    try:
+        response = requests.get(f"{api_url}/stats", timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException:
+        return None
 
 
 def render_sidebar() -> str:
@@ -39,20 +50,26 @@ def _render_health(api_url: str) -> None:
 
 
 def _render_stats(api_url: str) -> None:
-    try:
-        response = requests.get(f"{api_url}/stats", timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        st.sidebar.metric("Чанков в базе", data.get("chunks_count", 0))
-        documents = data.get("documents", [])
-        if documents:
-            st.sidebar.caption("Документы:")
-            for doc in documents:
-                st.sidebar.write(f"• {doc}")
-        else:
-            st.sidebar.caption("Документы не проиндексированы")
-    except requests.RequestException:
+    cols = st.sidebar.columns([3, 1])
+    with cols[1]:
+        refresh = st.button("↻", help="Обновить статистику")
+
+    if refresh:
+        _fetch_stats.clear()
+
+    data = _fetch_stats(api_url)
+    if data is None:
         st.sidebar.metric("Чанков в базе", "—")
+        return
+
+    st.sidebar.metric("Чанков в базе", data.get("chunks_count", 0))
+    documents = data.get("documents", [])
+    if documents:
+        st.sidebar.caption("Документы:")
+        for doc in documents:
+            st.sidebar.write(f"• {doc}")
+    else:
+        st.sidebar.caption("Документы не проиндексированы")
 
 
 def _render_reindex(api_url: str) -> None:
@@ -73,6 +90,7 @@ def _render_reindex(api_url: str) -> None:
                 )
                 response.raise_for_status()
             data = response.json()
+            _fetch_stats.clear()
             st.sidebar.success(
                 f"Готово: {data['chunks_added']} чанков "
                 f"из {data['indexed_files']} файлов"

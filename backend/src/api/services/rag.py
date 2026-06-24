@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.config import LLM_TOP_K
 from src.llm import NO_ANSWER_MESSAGE, OllamaClient, OllamaError
 from src.retrieval import Retriever
 
@@ -18,8 +19,10 @@ def ask(
     if not chunks:
         return {"answer": NO_ANSWER_MESSAGE, "sources": []}
 
+    llm_chunks = chunks[:LLM_TOP_K]
+
     try:
-        answer = llm.answer(question, chunks).strip()
+        answer = llm.answer(question, llm_chunks).strip()
     except OllamaError:
         raise
 

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from src.config import MAX_TOP_K, TOP_K
+
 
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, description="Вопрос пользователя")
-    top_k: int = Field(default=5, ge=1, le=20, description="Сколько чанков искать")
+    top_k: int = Field(default=TOP_K, ge=1, le=MAX_TOP_K, description="Сколько чанков искать")
 
 
 class SourceItem(BaseModel):

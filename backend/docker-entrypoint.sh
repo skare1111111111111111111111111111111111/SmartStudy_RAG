@@ -2,7 +2,7 @@
 set -e
 
 OLLAMA_URL="${OLLAMA_URL:-http://ollama:11434}"
-OLLAMA_MODEL="${OLLAMA_MODEL:-llama3}"
+OLLAMA_MODEL="${OLLAMA_MODEL:-llama3.2:1b}"
 
 echo "Waiting for Ollama..."
 until curl -sf "${OLLAMA_URL}/api/tags" > /dev/null 2>&1; do
