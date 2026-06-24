@@ -18,10 +18,28 @@ from src.config import (
 )
 
 SYSTEM_INSTRUCTION = (
-    "Ты — ассистент студента. Ответь на вопрос, используя ТОЛЬКО следующий контекст.\n"
-    "Если в контексте нет ответа, скажи: «В загруженных документах ответ не найден»."
+    "Ты — ассистент студента.\n"
+    "Отвечай строго по предоставленному КОНТЕКСТУ, не используй знания вне контекста.\n"
+    "Если в контексте недостаточно данных, напиши: «В загруженных документах ответ не найден».\n"
+    "Требования к ответу:\n"
+    "1) Начни с короткого вывода в 1-2 предложениях.\n"
+    "2) Затем дай разверненное объяснение (2-5 пунктов или абзацев).\n"
+    "3) Для ключевых фактов добавляй ссылки на источник в формате [source, стр. N].\n"
+    "4) Не выдумывай факты и не противоречь контексту."
 )
 NO_ANSWER_MESSAGE = "В загруженных документах ответ не найден."
+
+
+def _sanitize_answer_language(answer_language: str | None) -> str | None:
+    if answer_language is None:
+        return None
+
+    cleaned = "".join(
+        char for char in answer_language.strip() if char.isalnum() or char in {"-", "_", " "}
+    ).strip()
+    if not cleaned:
+        return None
+    return cleaned[:32]
 
 
 class OllamaError(Exception):
@@ -79,9 +97,22 @@ class OllamaClient:
 
         return "\n\n".join(parts)
 
-    def build_prompt(self, question: str, context: str) -> str:
+    def build_prompt(
+        self,
+        question: str,
+        context: str,
+        answer_language: str | None = None,
+    ) -> str:
+        language = _sanitize_answer_language(answer_language)
+        language_instruction = ""
+        if language:
+            language_instruction = (
+                f"\nЯЗЫК ОТВЕТА: {language}.\n"
+                "Отвечай только на этом языке."
+            )
+
         return (
-            f"{SYSTEM_INSTRUCTION}\n\n"
+            f"{SYSTEM_INSTRUCTION}{language_instruction}\n\n"
             f"КОНТЕКСТ:\n{context}\n\n"
             f"ВОПРОС: {question.strip()}\n\n"
             "ОТВЕТ:"
@@ -123,7 +154,12 @@ class OllamaClient:
             raise OllamaError("Ollama вернула пустой ответ.")
         return answer
 
-    def answer(self, question: str, chunks: list[dict[str, Any]]) -> str:
+    def answer(
+        self,
+        question: str,
+        chunks: list[dict[str, Any]],
+        answer_language: str | None = None,
+    ) -> str:
         """Формирует промпт из чанков и генерирует ответ."""
         if not question or not question.strip():
             raise ValueError("Вопрос не может быть пустым")
@@ -132,7 +168,11 @@ class OllamaClient:
         if not context.strip():
             return NO_ANSWER_MESSAGE
 
-        prompt = self.build_prompt(question, context)
+        prompt = self.build_prompt(
+            question,
+            context,
+            answer_language=answer_language,
+        )
         return self.generate(prompt)
 
     def is_available(self) -> bool:

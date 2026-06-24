@@ -73,6 +73,9 @@ def _render_stats(api_url: str) -> None:
 
 
 def _render_reindex(api_url: str) -> None:
+    st.sidebar.subheader("Документы")
+    _render_upload(api_url)
+    st.sidebar.divider()
     st.sidebar.subheader("Индексация")
     custom_path = st.sidebar.text_input(
         "Путь (необязательно)",
@@ -98,3 +101,41 @@ def _render_reindex(api_url: str) -> None:
             st.rerun()
         except requests.RequestException as exc:
             st.sidebar.error(f"Ошибка индексации: {exc}")
+
+
+def _render_upload(api_url: str) -> None:
+    uploaded = st.sidebar.file_uploader(
+        "Добавить файл",
+        type=["pdf", "docx", "txt"],
+        help="PDF, DOCX или TXT — файл сохранится и сразу проиндексируется",
+    )
+
+    if uploaded and st.sidebar.button("Загрузить и индексировать", use_container_width=True):
+        try:
+            with st.sidebar.spinner("Загрузка..."):
+                response = requests.post(
+                    f"{api_url}/documents/upload",
+                    files={
+                        "file": (
+                            uploaded.name,
+                            uploaded.getvalue(),
+                            uploaded.type or "application/octet-stream",
+                        )
+                    },
+                    timeout=300,
+                )
+                response.raise_for_status()
+            data = response.json()
+            _fetch_stats.clear()
+            st.sidebar.success(
+                f"Добавлен {data['filename']}: {data['chunks_added']} чанков"
+            )
+            st.rerun()
+        except requests.RequestException as exc:
+            detail = exc
+            if getattr(exc, "response", None) is not None:
+                try:
+                    detail = exc.response.json().get("detail", exc)
+                except ValueError:
+                    detail = exc.response.text or exc
+            st.sidebar.error(f"Не удалось загрузить: {detail}")

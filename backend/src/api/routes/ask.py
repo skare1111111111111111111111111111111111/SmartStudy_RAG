@@ -29,6 +29,7 @@ async def ask_question(
                 retriever=retriever,
                 llm=llm,
                 top_k=body.top_k,
+                answer_language=body.answer_language,
             ),
         )
     except ValueError as exc:
