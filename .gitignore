@@ -1,7 +1,9 @@
 # Docker
 .env
 
-# Data
+# Data (локальный индекс и рабочие документы — не коммитить)
+data/chroma/
+data/documents/
 /chroma_storage/
 backend/chroma_storage/
 
