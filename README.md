@@ -48,7 +48,7 @@ SmartStudy RAG индексирует лекции и методички, ище
 ### Одна команда (Windows)
 
 ```powershell
-irm https://raw.githubusercontent.com/Ffgags13/SmartStudy_RAG](https://github.com/skare1111111111111111111111111111111111/SmartStudy_RAG/main/install-images.ps1 | iex
+irm https://github.com/skare1111111111111111111111111111111111/SmartStudy_RAG/main/install-images.ps1 | iex
 ```
 
 **Уже скачано:**
